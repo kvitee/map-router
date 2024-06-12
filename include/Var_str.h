@@ -3,9 +3,11 @@
 
 #include <stdint.h>
 
+#include "Waypoint.h"
+
 
 /* Тип данных, хранящихся в стеке. */
-typedef int Stack_data_t;
+typedef Waypoint Stack_data_t;
 
 /* Узел стека */
 typedef struct stack_node {
