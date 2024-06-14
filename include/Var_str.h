@@ -32,7 +32,7 @@ Stack *Stack__create(void);
 
 /**
  * Проверяет, является ли стек пустым.
- * Возвращает 1, если стек не сожержит данных, иначе 0.
+ * Возвращает 1, если стек не содержит данных, иначе 0.
  */
 uint8_t Stack__empty(const Stack *s);
 
@@ -52,7 +52,7 @@ void Stack__push(Stack *s, Stack_data_t data);
 void Stack__pop(Stack *s);
 
 /**
- * Удаляет все данные из стека.
+ * Удаляет все данные стека.
  */
 void Stack__clear(Stack *s);
 

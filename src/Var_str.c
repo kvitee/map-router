@@ -19,7 +19,7 @@ uint8_t Stack__empty(const Stack *s) {
 
 Stack_data_t Stack__top(Stack *s) {
   if (s == NULL) {
-    return (Stack_data_t){-1, -1, 0, 0, 0.0};
+    return (Stack_data_t){-1, -1, 0, 0, 0.0f};
   }
 
   return s->top->data;

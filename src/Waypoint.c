@@ -8,5 +8,5 @@ uint8_t Waypoint__equal(Waypoint w1, Waypoint w2) {
 }
 
 Waypoint Waypoint__parent(Waypoint w) {
-  return (Waypoint){w.x + w.dx, w.y + w.dy};
+  return (Waypoint){w.x + w.dx, w.y + w.dy, 0, 0, 0.0f};
 }
