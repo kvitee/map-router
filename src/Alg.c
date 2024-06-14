@@ -65,17 +65,42 @@ void sort_waypoints(Waypoint *arr, uint8_t len) {
   }
 }
 
+
+/* Проверяет, является ли ячейка карты m с координатами x и y
+ * заблокированной для нахождения в ней, то есть является
+ * границей карты или препятствием.
+ */
+uint8_t cell_blocked(const Map *m, uint8_t x, uint8_t y) {
+  return (Map__get(m, x, y) == BORDER) || (Map__get(m, x, y) == OBSTACLE);
+}
+
 /**
  * Проверяет, возможно ли передвинуться в точку w и ее родительской
  * на карте m.
  * Возвращает 1, если возможно, иначе 0.
  */
 uint8_t move_blocked(Waypoint w, const Map *m) {
-  if (Map__get(m, w.x + w.dx, w.y) != FREE && Map__get(m, w.x, w.y + w.dy) != FREE) return 1;
+  /* Все ячейки с учетом размера корабля должны быть свободны. */
+  for (uint8_t i = 0; i < m->s; i++) {
+    for (uint8_t j = 0; j < m->s; j++) {
+      if (cell_blocked(m, w.x + j, w.y + i)) {
+        return 1;
+      }
+    }
+  }
 
-  if (Map__get(m, w.x, w.y) == BORDER) return 1;
-  if (Map__get(m, w.x, w.y) == OBSTACLE) return 1;
+  /* Если корабль больше одной ячейки, этого достаточно, можно двигаться. */
+  if (m->s > 1) return 0;
 
+  /* Проверка на следующую группу ситуаций, когда корабль проходит"
+   * сквозь диагональное препятствие:
+   * . @
+   * @ .
+   */
+  if (cell_blocked(m, w.x + w.dx, w.y) &&
+      cell_blocked(m, w.x, w.y + w.dy)) return 1;
+
+  /* Если проверка пройдена, движению ничего не мешает. */
   return 0;
 }
 
@@ -99,6 +124,10 @@ Stack *find_route(const Map *m) {
   Waypoint start = find_symbol(m, START);
   Waypoint end = find_symbol(m, END);
 
+  printf(
+    "Карта %hhux%hhu, корабль %hhux%hhu, от (%hhu; %hhu) до (%hhu; %hhu).\n",
+    m->w, m->h, m->s, m->s, start.x, start.y, end.x, end.y
+  );
   /* Добавляем начало маршрута в стек секции для оценки
    * и запускаем главный цикл:
    * - выполняем, пока есть секции для оценки;
@@ -238,8 +267,12 @@ int main(int argc, char **argv) {
   while (!Stack__empty(route)) {
     c = Stack__top(route);
 
-    if (Map__get(map, c.x, c.y) == FREE) {
-      Map__set(map, c.x, c.y, ROUTE);
+    for (uint8_t i = 0; i < map->s; i++) {
+      for (uint8_t j = 0; j < map->s; j++) {
+        if (Map__get(map, c.x + j, c.y + i) != FREE) continue;
+
+        Map__set(map, c.x + j, c.y + i, ROUTE);
+      }
     }
 
     Stack__pop(route);

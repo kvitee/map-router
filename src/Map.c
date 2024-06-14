@@ -16,17 +16,28 @@ Map *Map__create(uint8_t w, uint8_t h) {
 }
 
 Map *Map__read(FILE *f) {
+  /* Считываем размеры карты. */
   uint8_t w, h;
   fscanf(f, "%hhu;%hhu;", &w, &h);
 
   Map *m = Map__create(w, h);
 
+  /* Считываем символы для отрисовки карты. */
   for (uint8_t i = 0; i < MAP_SYMBOLS_COUNT; i++) {
     m->symbols[i] = fgetc(f);
   }
 
+  /* Считываем информацию о ячейках карты. */
   for (uint16_t i = 0; i < w*h; i++) {
     m->cells[i] = fgetc(f) - '0';
+  }
+
+  /* Ищем начало маршрута и на основе его размера узнаем размер корабля. */
+  for (uint16_t i = 0; i < w*h && m->s == 0; i++) {
+    while (m->cells[i] == START) {
+      m->s++;
+      i++;
+    }
   }
 
   return m;
