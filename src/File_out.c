@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "Map.h"
+#include "File_out.h"
 
 
 void save_map(const Map *m, FILE *f) {
