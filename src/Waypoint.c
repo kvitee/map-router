@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "Waypoint.h"
+#include "Map.h"
 
 
 uint8_t Waypoint__equal(Waypoint w1, Waypoint w2) {

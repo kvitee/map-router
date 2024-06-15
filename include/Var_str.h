@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "Waypoint.h"
+#include "Map.h"
 
 
 /* Тип данных, хранящихся в стеке. */

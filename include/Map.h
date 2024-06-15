@@ -43,6 +43,26 @@ typedef struct map {
   Map_symbol_code *cells;
 } Map;
 
+/* Точка маршрута */
+typedef struct waypoint {
+  /* Координаты текущей точки маршрута. */
+  uint8_t x;
+  uint8_t y;
+
+  /* Направление предыдущей точки маршрута. */
+  int8_t dx;
+  int8_t dy;
+
+  /*
+   * Итого, координаты предыдущей точки маршрута вычисляются как:
+   * px = x + dx;
+   * py = y + dy;
+   */
+
+  /* Расстояние от данной точки маршрута до конечной. */
+  float h;
+} Waypoint;
+
 
 /**
  * Создает карту с размерами w и h и возвращает указатель на нее.
@@ -76,6 +96,17 @@ void Map__set(Map *m, uint8_t x, uint8_t y, Map_symbol_code s);
  * Освобождает выделенную под карту память.
  */
 void Map__free(Map *m);
+
+/**
+ * Сравнивает две точки маршрута.
+ * Возвращает 1, если их координаты равны, иначе 0.
+ */
+uint8_t Waypoint__equal(Waypoint w1, Waypoint w2);
+
+/**
+ * Возвращает точку маршрута, предшествующую данной.
+ */
+Waypoint Waypoint__parent(Waypoint w);
 
 
 #endif  /* MAP_H_INCLUDED_ */
