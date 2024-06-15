@@ -124,10 +124,6 @@ Stack *find_route(const Map *m) {
   Waypoint start = find_symbol(m, START);
   Waypoint end = find_symbol(m, END);
 
-  printf(
-    "Карта %hhux%hhu, корабль %hhux%hhu, от (%hhu; %hhu) до (%hhu; %hhu).\n",
-    m->w, m->h, m->s, m->s, start.x, start.y, end.x, end.y
-  );
   /* Добавляем начало маршрута в стек секции для оценки
    * и запускаем главный цикл:
    * - выполняем, пока есть секции для оценки;
