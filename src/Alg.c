@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -8,35 +7,12 @@
 
 
 /**
- * Вычисляет расстояние между двумя точками маршрута.
- */
-float dist(Waypoint p1, Waypoint p2) {
-  return hypotf(p1.x - p2.x, p1.y - p2.y);
-}
-
-/**
- * Ищет первую ячейку карты, содержащую символ sym.
- * Возвращает соответствующую ей точку маршрута.
- */
-Waypoint find_symbol(const Map *m, Map_symbol_code s) {
-  for (uint8_t i = 0; i < m->h; i++) {
-    for (uint8_t j = 0; j < m->w; j++) {
-      if (Map__get(m, j, i) == s) {
-        return (Waypoint){j, i, 0, 0, 0.0f};
-      }
-    }
-  }
-
-  return (Waypoint){-1, -1, 0, 0, 0.0f};
-}
-
-/**
  * Проверяет, является ли ячейка посещенной на основе переданного
  * стека посещенных ячеек.
  *
  * Возвращает 1 если ячейка посещена (находится в visited), иначе 0.
  */
-uint8_t is_visited(Waypoint w, const Stack *visited) {
+uint8_t waypoint_visited(Waypoint w, const Stack *visited) {
   Stack_Node *cn = visited->top;
   while (cn->prev != NULL) {
     if (Waypoint__equal(cn->data, w)) {
@@ -65,45 +41,6 @@ void sort_waypoints(Waypoint *arr, uint8_t len) {
   }
 }
 
-
-/* Проверяет, является ли ячейка карты m с координатами x и y
- * заблокированной для нахождения в ней, то есть является
- * границей карты или препятствием.
- */
-uint8_t cell_blocked(const Map *m, uint8_t x, uint8_t y) {
-  return (Map__get(m, x, y) == BORDER) || (Map__get(m, x, y) == OBSTACLE);
-}
-
-/**
- * Проверяет, возможно ли передвинуться в точку w и ее родительской
- * на карте m.
- * Возвращает 1, если возможно, иначе 0.
- */
-uint8_t move_blocked(Waypoint w, const Map *m) {
-  /* Все ячейки с учетом размера корабля должны быть свободны. */
-  for (uint8_t i = 0; i < m->s; i++) {
-    for (uint8_t j = 0; j < m->s; j++) {
-      if (cell_blocked(m, w.x + j, w.y + i)) {
-        return 1;
-      }
-    }
-  }
-
-  /* Если корабль больше одной ячейки, этого достаточно, можно двигаться. */
-  if (m->s > 1) return 0;
-
-  /* Проверка на следующую группу ситуаций, когда корабль проходит"
-   * сквозь диагональное препятствие:
-   * . @
-   * @ .
-   */
-  if (cell_blocked(m, w.x + w.dx, w.y) &&
-      cell_blocked(m, w.x, w.y + w.dy)) return 1;
-
-  /* Если проверка пройдена, движению ничего не мешает. */
-  return 0;
-}
-
 /**
  * Основная функция для поиска маршрута на карте.
  * Не изменяет саму карту.
@@ -121,8 +58,8 @@ Stack *find_route(const Map *m) {
   Stack *visited = Stack__create();
 
   /* Начало и конец маршрута. */
-  Waypoint start = find_symbol(m, START);
-  Waypoint end = find_symbol(m, END);
+  Waypoint start = Map__find(m, START);
+  Waypoint end = Map__find(m, END);
 
   /* Добавляем начало маршрута в стек секции для оценки
    * и запускаем главный цикл:
@@ -146,6 +83,7 @@ Stack *find_route(const Map *m) {
     Waypoint neighbors[8];
     uint8_t nc = 0;
 
+    /* Массив с парами смещений для каждой соседней ячейки. */
     static int8_t directions[8][2] = {
       {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}
     };
@@ -161,13 +99,13 @@ Stack *find_route(const Map *m) {
 
       /* Если в выбранном направлении невозможно переместиться,
        * пропускаем ячейку. */
-      if (move_blocked(n, m)) continue;
+      if (Waypoint__blocked(n, m)) continue;
 
       /* Если ячейка уже посещена, также пропускаем ее. */
-      if (is_visited(n, visited)) continue;
+      if (waypoint_visited(n, visited)) continue;
 
       /* Вычисляем расстояние до конца маршрута. */
-      n.h = dist(n, end);
+      n.h = Waypoint__distance(n, end);
 
       /* Сохраняем в массив соседей. */
       neighbors[nc++] = n;

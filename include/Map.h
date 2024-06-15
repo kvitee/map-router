@@ -93,6 +93,18 @@ Map_symbol_code Map__get(const Map *m, uint8_t x, uint8_t y);
 void Map__set(Map *m, uint8_t x, uint8_t y, Map_symbol_code s);
 
 /**
+ * Ищет первую ячейку карты, содержащую символ s.
+ * Возвращает соответствующую ей точку маршрута.
+ */
+Waypoint Map__find(const Map *m, Map_symbol_code s);
+
+/* Проверяет, является ли ячейка карты m с координатами x и y
+ * заблокированной для нахождения в ней, то есть является
+ * границей карты или препятствием.
+ */
+uint8_t Map__cell_blocked(const Map *m, uint8_t x, uint8_t y);
+
+/**
  * Освобождает выделенную под карту память.
  */
 void Map__free(Map *m);
@@ -107,6 +119,18 @@ uint8_t Waypoint__equal(Waypoint w1, Waypoint w2);
  * Возвращает точку маршрута, предшествующую данной.
  */
 Waypoint Waypoint__parent(Waypoint w);
+
+/**
+ * Вычисляет расстояние между двумя точками маршрута.
+ */
+float Waypoint__distance(Waypoint w1, Waypoint w2);
+
+/**
+ * Проверяет, перекрыт ли путь между точкой w и ее родительской точкой
+ * с учетом препятствий на карте m.
+ * Возвращает 1, если да, иначе 0.
+ */
+uint8_t Waypoint__blocked(Waypoint w, const Map *m);
 
 
 #endif  /* MAP_H_INCLUDED_ */

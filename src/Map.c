@@ -10,7 +10,10 @@ Map *Map__create(uint8_t w, uint8_t h) {
   *m = (Map){w, h, " #@AB."};
 
   m->cells = malloc(sizeof(Map_symbol_code) * w*h);
-  memset(m->cells, FREE, w*h);
+
+  for (uint16_t i = 0; i < w*h; i++) {
+    m->cells[i] = FREE;
+  }
 
   return m;
 }
@@ -49,6 +52,23 @@ Map_symbol_code Map__get(const Map *m, uint8_t x, uint8_t y) {
 
 void Map__set(Map *m, uint8_t x, uint8_t y, Map_symbol_code s) {
   m->cells[y * m->w + x] = s;
+}
+
+Waypoint Map__find(const Map *m, Map_symbol_code s) {
+  for (uint8_t i = 0; i < m->h; i++) {
+    for (uint8_t j = 0; j < m->w; j++) {
+      if (Map__get(m, j, i) == s) {
+        return (Waypoint){j, i, 0, 0, 0.0f};
+      }
+    }
+  }
+
+  return (Waypoint){-1, -1, 0, 0, 0.0f};
+}
+
+uint8_t Map__cell_blocked(const Map *m, uint8_t x, uint8_t y) {
+  return (Map__get(m, x, y) == BORDER) ||
+         (Map__get(m, x, y) == OBSTACLE);
 }
 
 void Map__free(Map *m) {
