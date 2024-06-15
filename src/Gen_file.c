@@ -12,6 +12,7 @@
  */
 Map *generate_map(uint8_t w, uint8_t h, uint8_t s, uint8_t c) {
   Map *m = Map__create(w, h);
+  m->s = s;
 
   /* Отмечаем границы карты. */
   for (uint8_t i = 0; i < m->h; i++) {
@@ -107,6 +108,40 @@ Map *generate_map(uint8_t w, uint8_t h, uint8_t s, uint8_t c) {
   return m;
 }
 
+/**
+ * Функция, которая запрашивает у пользователя точки начала и конца маршрута и наносит их на карту.
+ */
+void choose_endpoints(Map *m) {
+  Waypoint start;
+  printf("Введите начальную точку маршрута (x y): ");
+
+  while (1) {
+    scanf("%hhu %hhu", &start.x, &start.y);
+
+    if (!Waypoint__blocked(start, m)) break;
+
+    printf("Точка пересекается с препятствием, попробуйте снова: ");
+  }
+
+  Waypoint end;
+  printf("Введите конечную точку маршрута (x y): ");
+
+  while (1) {
+    scanf("%hhu %hhu", &end.x, &end.y);
+
+    if (!Waypoint__blocked(end, m)) break;
+
+    printf("Точка пересекается с препятствием, попробуйте снова: ");
+  }
+
+  for (uint8_t i = 0; i < m->s; i++) {
+    for (uint8_t j = 0; j < m->s; j++) {
+      Map__set(m, start.x + j, start.y + i, START);
+      Map__set(m, end.x + j, end.y + i, END);
+    }
+  }
+}
+
 int main() {
   srand(time(0));
 
@@ -131,6 +166,16 @@ int main() {
   Map *map = generate_map(width, height, ship_size, obstacles_count);
 
   print_map(map, stdout);
+
+  uint8_t ch;
+  printf("Если Вы хотите выбрать начало и конец маршрута, введите 1: ");
+  scanf("%hhu", &ch);
+
+  if (ch == 1) {
+    choose_endpoints(map);
+
+    print_map(map, stdout);
+  }
 
   FILE *f = fopen("map.txt", "w");
   save_map(map, f);
