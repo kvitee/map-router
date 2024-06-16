@@ -5,7 +5,11 @@
 
 
 void save_map(const Map *m, FILE *f) {
-  fprintf(f, "%hhu;%hhu;%s", m->w, m->h, m->symbols);
+  fprintf(f, "%hhu;%hhu;", m->w, m->h);
+
+  for (uint8_t i = 0; i < MAP_SYMBOLS_COUNT; i++) {
+    fputc(m->symbols[i], f);
+  }
 
   for (uint16_t i = 0; i < m->w * m->h; i++) {
     fputc('0' + m->cells[i], f);
