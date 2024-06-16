@@ -21,7 +21,7 @@ Map *Map__create(uint8_t w, uint8_t h) {
 Map *Map__read(FILE *f) {
   /* Считываем размеры карты. */
   uint8_t w, h;
-  fscanf(f, "%hhu;%hhu;", &w, &h);
+  fscanf_s(f, "%hhu;%hhu;", &w, &h);
 
   Map *m = Map__create(w, h);
 

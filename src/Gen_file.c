@@ -116,7 +116,7 @@ void choose_endpoints(Map *m) {
   printf("Введите начальную точку маршрута (x y): ");
 
   while (1) {
-    scanf("%hhu %hhu", &start.x, &start.y);
+    scanf_s("%hhu %hhu", &start.x, &start.y);
 
     if (!Waypoint__blocked(start, m)) break;
 
@@ -127,7 +127,7 @@ void choose_endpoints(Map *m) {
   printf("Введите конечную точку маршрута (x y): ");
 
   while (1) {
-    scanf("%hhu %hhu", &end.x, &end.y);
+    scanf_s("%hhu %hhu", &end.x, &end.y);
 
     if (!Waypoint__blocked(end, m)) break;
 
@@ -149,19 +149,19 @@ void gen_file_option(void) {
 
   uint8_t width;
   printf("Ширина: ");
-  scanf("%hhu", &width);
+  scanf_s("%hhu", &width);
 
   uint8_t height;
   printf("Высота: ");
-  scanf("%hhu", &height);
+  scanf_s("%hhu", &height);
 
   uint8_t ship_size;
   printf("Введите размер летательного аппарата: ");
-  scanf("%hhu", &ship_size);
+  scanf_s("%hhu", &ship_size);
 
   uint8_t obstacles_count;
   printf("Введите количество препятствий: ");
-  scanf("%hhu", &obstacles_count);
+  scanf_s("%hhu", &obstacles_count);
 
   Map *map = generate_map(width, height, ship_size, obstacles_count);
 

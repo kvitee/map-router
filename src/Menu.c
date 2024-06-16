@@ -1,10 +1,19 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include "Menu.h"
 
 
 int main() {
+#ifdef _WIN32
+  SetConsoleCP(65001);
+  SetConsoleOutputCP(65001);
+#endif
+
   uint8_t finished = 0;
 
   while (!finished) {
