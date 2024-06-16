@@ -36,6 +36,8 @@ int main() {
 
       break;
     }
+
+    while (getc(stdin) != '\n');
   }
 
   return 0;
