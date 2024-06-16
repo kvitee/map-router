@@ -168,21 +168,12 @@ Stack *find_route(const Map *m) {
 }
 
 
-int main(int argc, char **argv) {
-  char fn[50];
-
-  if (argc > 1) {
-    strcpy(fn, argv[1]);
-  } else {
-    printf("Введите название файла с картой: ");
-    scanf("%s", fn);
-  }
-
-  FILE *f = fopen(fn, "r");
+void find_route_option(void) {
+  FILE *f = fopen("map.txt", "r");
 
   if (f == NULL) {
-    printf("Файл %s не существует.\n", fn);
-    return 1;
+    printf("Файл map.txt не существует.\n");
+    return;
   }
 
   Map *map = Map__read(f);
@@ -216,6 +207,4 @@ int main(int argc, char **argv) {
   print_map(map, stdout);
 
   Stack__free(route);
-
-  return 0;
 }

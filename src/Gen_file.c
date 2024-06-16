@@ -142,7 +142,7 @@ void choose_endpoints(Map *m) {
   }
 }
 
-int main() {
+void gen_file_option(void) {
   srand(time(0));
 
   printf("Введите размеры карты.\n");
@@ -167,11 +167,10 @@ int main() {
 
   print_map(map, stdout);
 
-  uint8_t ch;
-  printf("Если Вы хотите выбрать начало и конец маршрута, введите 1: ");
-  scanf("%hhu", &ch);
+  while (getc(stdin) != '\n');
 
-  if (ch == 1) {
+  printf("Если Вы хотите выбрать начало и конец маршрута, введите 1: ");
+  if (getc(stdin) == '1') {
     choose_endpoints(map);
 
     print_map(map, stdout);
@@ -182,6 +181,4 @@ int main() {
   fclose(f);
 
   Map__free(map);
-
-  return 0;
 }
