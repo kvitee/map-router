@@ -8,18 +8,18 @@
 
 /**
  * Проверяет, является ли ячейка посещенной на основе переданного
- * стека посещенных ячеек.
+ * списка посещенных ячеек.
  *
  * Возвращает 1 если ячейка посещена (находится в visited), иначе 0.
  */
-uint8_t waypoint_visited(Waypoint w, const Stack *visited) {
-  Stack_Node *cn = visited->top;
-  while (cn->prev != NULL) {
+uint8_t waypoint_visited(Waypoint w, const List *visited) {
+  List_Node *cn = visited->head;
+  while (cn->next != NULL) {
     if (Waypoint__equal(cn->data, w)) {
       return 1;
     }
 
-    cn = cn->prev;
+    cn = cn->next;
   }
 
   return 0;
@@ -44,37 +44,35 @@ void sort_waypoints(Waypoint *arr, uint8_t len) {
 /**
  * Основная функция для поиска маршрута на карте.
  * Не изменяет саму карту.
- * Возвращает стек точек маршрута, если таковой найден, иначе NULL.
+ * Возвращает список точек маршрута, если таковой найден, иначе NULL.
  */
-Stack *find_route(const Map *m) {
-  /* Актуальный стек - стек с секциями, которые предстоит
-   * оценить.
-   */
-  Stack *actual = Stack__create();
+List *find_route(const Map *m) {
+  /* Актуальный список - список с ячейками, которые предстоит оценить. */
+  List *actual = List__create();
 
-  /* Стек с посещенными секциями, по которым в конце будет
+  /* Список с посещенными ячейками, по которым в конце будет
    * производиться трассировка пути.
    */
-  Stack *visited = Stack__create();
+  List *visited = List__create();
 
   /* Начало и конец маршрута. */
   Waypoint start = Map__find(m, START);
   Waypoint end = Map__find(m, END);
 
-  /* Добавляем начало маршрута в стек секции для оценки
+  /* Добавляем начало маршрута в список ячеек для оценки
    * и запускаем главный цикл:
-   * - выполняем, пока есть секции для оценки;
+   * - выполняем, пока есть ячейки для оценки;
    * - если закончились, а на вершине visited не конечная
    *   точка - маршрут до точки не существует.
    */
-  Stack__push(actual, start);
-  while (!Stack__empty(actual)) {
-    /* Вытаскиваем следующую секцию для оценки. */
-    Waypoint c = Stack__top(actual);
-    Stack__pop(actual);
+  List__push(actual, start);
+  while (!List__empty(actual)) {
+    /* Вытаскиваем следующую ячейку для оценки. */
+    Waypoint c = List__head(actual);
+    List__pop(actual);
 
     /* Добавляем ее к посещенным. */
-    Stack__push(visited, c);
+    List__push(visited, c);
 
     /* Если конец маршрута, выходим - маршрут найден! */
     if (Waypoint__equal(c, end)) break;
@@ -112,75 +110,75 @@ Stack *find_route(const Map *m) {
     }
 
     /* Сортируем соседей по убыванию их расстояния до конца маршрута,
-     * чтобы после добавления их в стек actual на вершине находилась
+     * чтобы после добавления их в список actual на вершине находилась
      * ячейка с наименьшим расстоянием до конца маршрута.
      */
     sort_waypoints(neighbors, nc);
 
     for (uint8_t i = 0; i < nc; i++) {
-      Stack__push(actual, neighbors[i]);
+      List__push(actual, neighbors[i]);
     }
   }
 
-  /* Если после завершения основного цикла на вершине стека с посещенными
+  /* Если после завершения основного цикла на вершине списка с посещенными
    * ячейками находится не конец маршрута, то маршрут не найден, и
    * функция возвращает NULL - пустой маршрут.
    */
-  if (!Waypoint__equal(Stack__top(visited), end)) {
+  if (!Waypoint__equal(List__head(visited), end)) {
     return NULL;
   }
 
-  /* Создаем финальный стек, содержащий */
-  Stack *route = Stack__create();
+  /* Создаем финальный список, содержащий ячейки найденного маршрута. */
+  List *route = List__create();
 
   /* Добавляем конец маршрута и вычисляем предыдущую точку маршрута (p). */
-  Stack__push(route, end);
+  List__push(route, end);
   Waypoint p = Waypoint__parent(end);
 
   /* Основной цикл, работает, пока есть посещенные вершины.
-   * Выполняет поиск предыдущей точки маршрута в стеке посещенных,
-   * Когда находит, добавляет ее в стек маршрута и обновляет p,
+   * Выполняет поиск предыдущей точки маршрута в списке посещенных,
+   * Когда находит, добавляет ее в список маршрута и обновляет p,
    * чтобы на следующих итерациях искалась уже ее предыдущая точка.
    */
-  while (!Stack__empty(visited)) {
-    /* Если точка на вершине стека не является искомой, пропускаем ее. */
-    if (!Waypoint__equal(p, Stack__top(visited))) {
-      Stack__pop(visited);
+  while (!List__empty(visited)) {
+    /* Если точка на вершине списка не является искомой, пропускаем ее. */
+    if (!Waypoint__equal(p, List__head(visited))) {
+      List__pop(visited);
       continue;
     }
 
-    /* Добавляем найденную точку в стек маршрута. */
-    Stack__push(route, Stack__top(visited));
-    Stack__pop(visited);
+    /* Добавляем найденную точку в список маршрута. */
+    List__push(route, List__head(visited));
+    List__pop(visited);
 
     /* Если найденная точка - начало маршрута, выходим из цикла. */
-    if (Waypoint__equal(Stack__top(route), start)) break;
+    if (Waypoint__equal(List__head(route), start)) break;
 
     /* Обновляем искомую точку. */
-    p = Waypoint__parent(Stack__top(route));
+    p = Waypoint__parent(List__head(route));
   }
 
-  /* Очищаем все вспомогательные стеки. */
-  Stack__free(actual);
-  Stack__free(visited);
+  /* Очищаем все вспомогательные списки. */
+  List__free(actual);
+  List__free(visited);
 
   return route;
 }
 
 
-void find_route_option(void) {
+int main() {
   FILE *f = fopen("map.txt", "r");
 
   if (f == NULL) {
     printf("Файл map.txt не существует.\n");
-    return;
+    return 1;
   }
 
   Map *map = Map__read(f);
   fclose(f);
 
   /* Выполняем поиск маршрута. */
-  Stack *route = find_route(map);
+  List *route = find_route(map);
 
   /* Если маршрут не найден, выводим сообщение об этом. */
   if (route == NULL) {
@@ -189,8 +187,8 @@ void find_route_option(void) {
 
   /* Отмечаем найденный маршрут на карте. */
   Waypoint c;
-  while (!Stack__empty(route)) {
-    c = Stack__top(route);
+  while (!List__empty(route)) {
+    c = List__head(route);
 
     for (uint8_t i = 0; i < map->s; i++) {
       for (uint8_t j = 0; j < map->s; j++) {
@@ -200,11 +198,14 @@ void find_route_option(void) {
       }
     }
 
-    Stack__pop(route);
+    List__pop(route);
   }
 
   /* Выводим карту с найденным маршрутом в консоль. */
   print_map(map, stdout);
 
-  Stack__free(route);
+  /* Очищаем список с маршрутом. */
+  List__free(route);
+
+  return 0;
 }

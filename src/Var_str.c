@@ -4,64 +4,64 @@
 #include "Var_str.h"
 
 
-Stack *Stack__create(void) {
-  Stack *s = malloc(sizeof(Stack));
+List *List__create(void) {
+  List *list = malloc(sizeof(List));
 
-  s->top = malloc(sizeof(Stack_Node));
-  s->top->prev = NULL;
+  list->head = malloc(sizeof(List_Node));
+  list->head->next = NULL;
 
-  return s;
+  return list;
 }
 
-uint8_t Stack__empty(const Stack *s) {
-  return (s == NULL) || (s->top->prev == NULL);
+uint8_t List__empty(const List *list) {
+  return (list == NULL) || (list->head->next == NULL);
 }
 
-Stack_data_t Stack__top(Stack *s) {
-  if (s == NULL) {
-    return (Stack_data_t){-1, -1, 0, 0, 0.0f};
+List_data_t List__head(List *list) {
+  if (list == NULL) {
+    return (List_data_t){-1, -1, 0, 0, 0.0f};
   }
 
-  return s->top->data;
+  return list->head->data;
 }
 
-void Stack__push(Stack *s, Stack_data_t data) {
-  if (s == NULL) {
+void List__push(List *list, List_data_t data) {
+  if (list == NULL) {
     return;
   }
 
-  Stack_Node *n = malloc(sizeof(Stack_Node));
+  List_Node *node = malloc(sizeof(List_Node));
 
-  n->prev = s->top;
-  n->data = data;
+  node->next = list->head;
+  node->data = data;
 
-  s->top = n;
+  list->head = node;
 }
 
-void Stack__pop(Stack *s) {
-  if (Stack__empty(s)) {
+void List__pop(List *list) {
+  if (List__empty(list)) {
     return;
   }
 
-  Stack_Node *top = s->top;
+  List_Node *head = list->head;
 
-  s->top = s->top->prev;
-  free(top);
+  list->head = list->head->next;
+  free(head);
 }
 
-void Stack__clear(Stack *s) {
-  while (!Stack__empty(s)) {
-    Stack__pop(s);
+void List__clear(List *list) {
+  while (!List__empty(list)) {
+    List__pop(list);
   }
 }
 
-void Stack__free(Stack *s) {
-  if (s == NULL) {
+void List__free(List *list) {
+  if (list == NULL) {
     return;
   }
 
-  Stack__clear(s);
+  List__clear(list);
 
-  free(s->top);
-  free(s);
+  free(list->head);
+  free(list);
 }

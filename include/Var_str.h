@@ -6,60 +6,64 @@
 #include "Map.h"
 
 
-/* Тип данных, хранящихся в стеке. */
-typedef Waypoint Stack_data_t;
+#ifndef LIST_DATA_T
+#define LIST_DATA_T Waypoint
+#endif  /* LIST_DATA_T */
 
-/* Узел стека */
-typedef struct stack_node {
-  /* Указатель на предыдущий узел. */
-  struct stack_node *prev;
+/* Тип данных, хранящихся в списке. */
+typedef LIST_DATA_T List_data_t;
+
+/* Узел списка */
+typedef struct list_node {
+  /* Указатель на следующий узел. */
+  struct list_node *next;
 
   /* Хранящиеся данные. */
-  Stack_data_t data;
-} Stack_Node;
+  List_data_t data;
+} List_Node;
 
-/* Стек */
-typedef struct stack {
-  /* Указатель на узел, являющийся вершиной стека. */
-  Stack_Node *top;
-} Stack;
+/* Список */
+typedef struct list {
+  /* Указатель на узел, являющийся "головой" списка (первый узел). */
+  List_Node *head;
+} List;
 
-
-/**
- * Создает пустой стек и возвращает указатель на него.
- */
-Stack *Stack__create(void);
 
 /**
- * Проверяет, является ли стек пустым.
- * Возвращает 1, если стек не содержит данных, иначе 0.
+ * Создает пустой список и возвращает указатель на него.
  */
-uint8_t Stack__empty(const Stack *s);
+List *List__create(void);
 
 /**
- * Возвращает данные, хранящиеся на вершине стека.
+ * Проверяет, является ли список пустым.
+ * Возвращает 1, если список не содержит данных, иначе 0.
  */
-Stack_data_t Stack__top(Stack *s);
+uint8_t List__empty(const List *list);
 
 /**
- * Добавляет данные на вершину стека.
+ * Возвращает данные, хранящиеся в начале списка.
  */
-void Stack__push(Stack *s, Stack_data_t data);
+List_data_t List__head(List *list);
 
 /**
- * Удаляет данные с вершины стека.
+ * Добавляет данные в начало списка.
  */
-void Stack__pop(Stack *s);
+void List__push(List *list, List_data_t data);
 
 /**
- * Удаляет все данные стека.
+ * Удаляет данные из начала списка.
  */
-void Stack__clear(Stack *s);
+void List__pop(List *list);
 
 /**
- * Удаляет все данные стека и освобождает выделенную под него память.
+ * Удаляет все данные списка.
  */
-void Stack__free(Stack *s);
+void List__clear(List *list);
+
+/**
+ * Удаляет все данные списка и освобождает выделенную под него память.
+ */
+void List__free(List *list);
 
 
 #endif  /* VAR_STR_H_INCLUDED_ */

@@ -23,6 +23,7 @@ Map *Map__read(FILE *f) {
   uint8_t w, h;
   fscanf(f, "%hhu;%hhu;", &w, &h);
 
+  /* Создаем пустую карту. */
   Map *m = Map__create(w, h);
 
   /* Считываем символы для отрисовки карты. */
@@ -36,7 +37,7 @@ Map *Map__read(FILE *f) {
   }
 
   /* Ищем начало маршрута и на основе его размера узнаем размер корабля. */
-  for (uint16_t i = 0; i < w*h && m->s == 0; i++) {
+  for (uint16_t i = 0; i < m->s == 0 && w*h; i++) {
     while (m->cells[i] == START) {
       m->s++;
       i++;
@@ -67,8 +68,9 @@ Waypoint Map__find(const Map *m, Map_symbol_code s) {
 }
 
 uint8_t Map__cell_blocked(const Map *m, uint8_t x, uint8_t y) {
-  return (Map__get(m, x, y) == BORDER) ||
-         (Map__get(m, x, y) == OBSTACLE);
+  const Map_symbol_code c = Map__get(m, x, y);
+
+  return (c == BORDER) || (c == OBSTACLE);
 }
 
 void Map__free(Map *m) {

@@ -96,8 +96,8 @@ Map *generate_map(uint8_t w, uint8_t h, uint8_t s, uint8_t c) {
     c -= 1;
   }
 
-  /* Убираем с карты все дополнительные обозначения, использованные
-   * при генерации препятствий.
+  /* Убираем с карты все дополнительные обозначения,
+   * использованные при генерации препятствий.
    */
   for (uint16_t i = 0; i < m->w * m->h; i++) {
     if (m->cells[i] == ROUTE) {
@@ -142,7 +142,7 @@ void choose_endpoints(Map *m) {
   }
 }
 
-void gen_file_option(void) {
+int main() {
   srand(time(0));
 
   printf("Введите размеры карты.\n");
@@ -181,4 +181,6 @@ void gen_file_option(void) {
   fclose(f);
 
   Map__free(map);
+
+  return 0;
 }
