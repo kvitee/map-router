@@ -37,7 +37,7 @@ Map *Map__read(FILE *f) {
   }
 
   /* Ищем начало маршрута и на основе его размера узнаем размер корабля. */
-  for (uint16_t i = 0; i < m->s == 0 && w*h; i++) {
+  for (uint16_t i = 0; i < w*h && m->s == 0; i++) {
     while (m->cells[i] == START) {
       m->s++;
       i++;
