@@ -6,32 +6,53 @@
 #include "File_out.h"
 
 
-/**
- * Проверяет, является ли ячейка посещенной на основе переданного
- * списка посещенных ячеек.
- *
- * Возвращает 1 если ячейка посещена (находится в visited), иначе 0.
- */
-uint8_t waypoint_visited(Waypoint w, const List *visited) {
-  List_Node *cn = visited->head->next;
-  while (cn->next != NULL) {
-    if (Waypoint__equal(cn->data, w)) {
-      return 1;
-    }
-
-    cn = cn->next;
+List *trace_route(Waypoint start, Waypoint end, List *visited) {
+  /* Если в начале списка с посещенными ячейками находится не конец маршрута,
+   * то маршрут не найден, возвращаем NULL - пустой маршрут.
+   */
+  if (!Waypoint__equal(List__head(visited), end)) {
+    return NULL;
   }
 
-  return 0;
+  /* Создаем список, содержащий ячейки найденного маршрута. */
+  List *route = List__create();
+
+  /* Добавляем конец маршрута и вычисляем предыдущую точку маршрута (p). */
+  List__push_head(route, end);
+  Waypoint p = Waypoint__parent(end);
+
+  /* Основной цикл, работает, пока есть посещенные ячейки.
+   * Выполняем поиск предыдущей точки маршрута в списке посещенных.
+   * Когда находим, добавляем ее в список маршрута и обновляем p,
+   * чтобы на следующих итерациях искалась уже ее предыдущая точка.
+   */
+  while (!List__empty(visited)) {
+    /* Если точка в начале списка не является искомой, пропускаем ее. */
+    if (!Waypoint__equal(p, List__head(visited))) {
+      List__pop_head(visited);
+      continue;
+    }
+
+    /* Добавляем найденную точку в список маршрута. */
+    List__push_head(route, List__head(visited));
+    List__pop_head(visited);
+
+    /* Если найденная точка - начало маршрута, выходим из цикла. */
+    if (Waypoint__equal(List__head(route), start)) break;
+
+    /* Обновляем искомую точку. */
+    p = Waypoint__parent(List__head(route));
+  }
+
+  return route;
 }
 
 /**
- * Основная функция для поиска маршрута на карте.
- * Не изменяет саму карту.
+ * Основная функция для поиска маршрута на карте. Не изменяет саму карту.
  * Возвращает список точек маршрута, если таковой найден, иначе NULL.
  */
 List *find_route(const Map *m) {
-  /* Актуальный список - список с ячейками, которые предстоит оценить. */
+  /* Список с ячейками, которые предстоит оценить. */
   List *actual = List__create();
 
   /* Список с посещенными ячейками, по которым в конце будет
@@ -43,13 +64,14 @@ List *find_route(const Map *m) {
   Waypoint start = Map__find(m, START);
   Waypoint end = Map__find(m, END);
 
-  /* Добавляем начало маршрута в список ячеек для оценки
-   * и запускаем главный цикл:
-   * - выполняем, пока есть ячейки для оценки;
-   * - если закончились, а на вершине visited не конечная
-   *   точка - маршрут до точки не существует.
-   */
+  /* Добавляем начало маршрута в список ячеек для оценки. */
   List__push_tail(actual, start);
+
+  /* Главный цикл:
+   * - выполняем, пока есть ячейки для оценки;
+   * - если закончились, и первый элемент visited конечная точка,
+   *   то маршрут найден, иначе - он не найден.
+   */
   while (!List__empty(actual)) {
     /* Вытаскиваем следующую ячейку для оценки. */
     Waypoint c = List__head(actual);
@@ -85,51 +107,19 @@ List *find_route(const Map *m) {
       if (Waypoint__blocked(n, m)) continue;
 
       /* Если ячейка уже посещена, также пропускаем ее. */
-      if (waypoint_visited(n, visited)) continue;
-      if (waypoint_visited(n, actual)) continue;
+      if (List__contains(visited, n)) continue;
+
+      /* Если ячейка находится в списке actual,
+       * добавлять ее туда второй раз не нужно. */
+      if (List__contains(actual, n)) continue;
 
       /* Если все хорошо, добавляем в список для оценки. */
       List__push_tail(actual, n);
     }
   }
 
-  /* Если после завершения основного цикла на вершине списка с посещенными
-   * ячейками находится не конец маршрута, то маршрут не найден, и
-   * функция возвращает NULL - пустой маршрут.
-   */
-  if (!Waypoint__equal(List__head(visited), end)) {
-    return NULL;
-  }
-
-  /* Создаем финальный список, содержащий ячейки найденного маршрута. */
-  List *route = List__create();
-
-  /* Добавляем конец маршрута и вычисляем предыдущую точку маршрута (p). */
-  List__push_head(route, end);
-  Waypoint p = Waypoint__parent(end);
-
-  /* Основной цикл, работает, пока есть посещенные вершины.
-   * Выполняет поиск предыдущей точки маршрута в списке посещенных,
-   * Когда находит, добавляет ее в список маршрута и обновляет p,
-   * чтобы на следующих итерациях искалась уже ее предыдущая точка.
-   */
-  while (!List__empty(visited)) {
-    /* Если точка на вершине списка не является искомой, пропускаем ее. */
-    if (!Waypoint__equal(p, List__head(visited))) {
-      List__pop_head(visited);
-      continue;
-    }
-
-    /* Добавляем найденную точку в список маршрута. */
-    List__push_head(route, List__head(visited));
-    List__pop_head(visited);
-
-    /* Если найденная точка - начало маршрута, выходим из цикла. */
-    if (Waypoint__equal(List__head(route), start)) break;
-
-    /* Обновляем искомую точку. */
-    p = Waypoint__parent(List__head(route));
-  }
+  /* Выполняем трассировку пути. */
+  List *route = trace_route(start, end, visited);
 
   /* Очищаем все вспомогательные списки. */
   List__free(actual);

@@ -65,6 +65,11 @@ List_data_t List__head(const List *list);
 List_data_t List__tail(const List *list);
 
 /**
+ * Возвращает 1, если список содержит переданное значение, иначе 0.
+ */
+uint8_t List__contains(const List *list, List_data_t data);
+
+/**
  * Добавляет данные в начало списка.
  */
 void List__push_head(List *list, List_data_t data);

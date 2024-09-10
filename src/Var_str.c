@@ -39,6 +39,20 @@ List_data_t List__tail(const List *list) {
   return list->tail->prev->data;
 }
 
+uint8_t List__contains(const List *list, List_data_t data) {
+  List_Node *cn = list->head->next;
+
+  while (cn->next != NULL) {
+    if (Waypoint__equal(cn->data, data)) {
+      return 1;
+    }
+
+    cn = cn->next;
+  }
+
+  return 0;
+}
+
 void List__push_head(List *list, List_data_t data) {
   if (list == NULL) {
     return;
