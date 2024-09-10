@@ -7,10 +7,10 @@ FINDROUTE_OBJECTS := bin/Alg.o bin/Var_str.o $(COMMON_OBJECTS)
 all: genmap findroute
 
 genmap: Gen_file.o
-	gcc $(GENMAP_OBJECTS) -lm -o bin/genmap
+	gcc $(GENMAP_OBJECTS) -o bin/genmap
 
 findroute: Alg.o
-	gcc $(FINDROUTE_OBJECTS) -lm -o bin/findroute
+	gcc $(FINDROUTE_OBJECTS) -o bin/findroute
 
 out_dirs:
 	mkdir -p bin/
