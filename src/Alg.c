@@ -129,23 +129,49 @@ List *find_route(const Map *m) {
 }
 
 
-int main() {
-  FILE *f = fopen("map.txt", "r");
+int main(int argc, char **argv) {
+  char fn[50];
+  FILE *f;
 
+  /* Название файла из командной строки. */
+  if (argc > 1) {
+    f = fopen(argv[1], "r");
+  }
+
+  /* Файл по умолчанию - map.txt. */
+  if (f == NULL) {
+    f = fopen("map.txt", "r");
+  }
+
+  /* Запрашиваем название файла у пользователя. */
   if (f == NULL) {
     printf("Файл map.txt не существует.\n");
+    printf("Введите название файла с картой: ");
+
+    scanf("%s", fn);
+    FILE *f = fopen(fn, "r");
+  }
+
+  /* Ни одного файла нет - завершаем программу. */
+  if (f == NULL) {
+    printf("Файл %s не существует.\n", fn);
     return 1;
   }
 
+  /* Считываем карту и закрываем файл. */
   Map *map = Map__read(f);
   fclose(f);
 
   /* Выполняем поиск маршрута. */
   List *route = find_route(map);
 
-  /* Если маршрут не найден, выводим сообщение об этом. */
+  /* Если маршрут не найден, выводим сообщение об этом
+   * и карту без маршрута. */
   if (route == NULL) {
     printf("Маршрут не найден.\n");
+    print_map(map, stdout);
+
+    return 0;
   }
 
   /* Отмечаем найденный маршрут на карте. */
