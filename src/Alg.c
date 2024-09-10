@@ -65,14 +65,14 @@ List *find_route(const Map *m) {
    * - если закончились, а на вершине visited не конечная
    *   точка - маршрут до точки не существует.
    */
-  List__push(actual, start);
+  List__push_head(actual, start);
   while (!List__empty(actual)) {
     /* Вытаскиваем следующую ячейку для оценки. */
     Waypoint c = List__head(actual);
-    List__pop(actual);
+    List__pop_head(actual);
 
     /* Добавляем ее к посещенным. */
-    List__push(visited, c);
+    List__push_head(visited, c);
 
     /* Если конец маршрута, выходим - маршрут найден! */
     if (Waypoint__equal(c, end)) break;
@@ -116,7 +116,7 @@ List *find_route(const Map *m) {
     sort_waypoints(neighbors, nc);
 
     for (uint8_t i = 0; i < nc; i++) {
-      List__push(actual, neighbors[i]);
+      List__push_head(actual, neighbors[i]);
     }
   }
 
@@ -132,7 +132,7 @@ List *find_route(const Map *m) {
   List *route = List__create();
 
   /* Добавляем конец маршрута и вычисляем предыдущую точку маршрута (p). */
-  List__push(route, end);
+  List__push_head(route, end);
   Waypoint p = Waypoint__parent(end);
 
   /* Основной цикл, работает, пока есть посещенные вершины.
@@ -143,13 +143,13 @@ List *find_route(const Map *m) {
   while (!List__empty(visited)) {
     /* Если точка на вершине списка не является искомой, пропускаем ее. */
     if (!Waypoint__equal(p, List__head(visited))) {
-      List__pop(visited);
+      List__pop_head(visited);
       continue;
     }
 
     /* Добавляем найденную точку в список маршрута. */
-    List__push(route, List__head(visited));
-    List__pop(visited);
+    List__push_head(route, List__head(visited));
+    List__pop_head(visited);
 
     /* Если найденная точка - начало маршрута, выходим из цикла. */
     if (Waypoint__equal(List__head(route), start)) break;
@@ -198,7 +198,7 @@ int main() {
       }
     }
 
-    List__pop(route);
+    List__pop_head(route);
   }
 
   /* Выводим карту с найденным маршрутом в консоль. */
