@@ -13,7 +13,7 @@
  * Возвращает 1 если ячейка посещена (находится в visited), иначе 0.
  */
 uint8_t waypoint_visited(Waypoint w, const List *visited) {
-  List_Node *cn = visited->head;
+  List_Node *cn = visited->head->next;
   while (cn->next != NULL) {
     if (Waypoint__equal(cn->data, w)) {
       return 1;
@@ -23,22 +23,6 @@ uint8_t waypoint_visited(Waypoint w, const List *visited) {
   }
 
   return 0;
-}
-
-/**
- * Сортирует массив точек маршрута arr длины len в порядке убывания
- * их расстояний от конца маршрута (величины h).
- */
-void sort_waypoints(Waypoint *arr, uint8_t len) {
-  for (uint8_t i = 0; i < len; i++) {
-    for (uint8_t j = 0; j < len; j++) {
-      if (arr[i].h > arr[j].h) {
-        Waypoint tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-      }
-    }
-  }
 }
 
 /**
@@ -65,35 +49,36 @@ List *find_route(const Map *m) {
    * - если закончились, а на вершине visited не конечная
    *   точка - маршрут до точки не существует.
    */
-  List__push_head(actual, start);
+  List__push_tail(actual, start);
   while (!List__empty(actual)) {
     /* Вытаскиваем следующую ячейку для оценки. */
     Waypoint c = List__head(actual);
     List__pop_head(actual);
 
-    /* Добавляем ее к посещенным. */
+    /* Добавляем текущую ячейку к посещенным. */
     List__push_head(visited, c);
 
     /* Если конец маршрута, выходим - маршрут найден! */
     if (Waypoint__equal(c, end)) break;
 
-    /* Создаем массив под максимум 8 соседей. */
-    Waypoint neighbors[8];
-    uint8_t nc = 0;
-
     /* Массив с парами смещений для каждой соседней ячейки. */
     static int8_t directions[8][2] = {
-      {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}
+      {-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, 1}, {1, 1}, {1, -1}, {-1, -1}
     };
 
     /* Перебираем соседние ячейки. */
     Waypoint n;
     for (uint8_t i = 0; i < 8; i++) {
+      /* Берем смещение из заранее заготовленного массива. */
       n.dx = directions[i][0];
       n.dy = directions[i][1];
 
+      /* Вычисляем собственные координаты. */
       n.x = c.x - n.dx;
       n.y = c.y - n.dy;
+
+      /* Увеличиваем количество пройденных ячеек на 1. */
+      n.h = c.h + 1;
 
       /* Если в выбранном направлении невозможно переместиться,
        * пропускаем ячейку. */
@@ -101,22 +86,10 @@ List *find_route(const Map *m) {
 
       /* Если ячейка уже посещена, также пропускаем ее. */
       if (waypoint_visited(n, visited)) continue;
+      if (waypoint_visited(n, actual)) continue;
 
-      /* Вычисляем расстояние до конца маршрута. */
-      n.h = Waypoint__distance(n, end);
-
-      /* Сохраняем в массив соседей. */
-      neighbors[nc++] = n;
-    }
-
-    /* Сортируем соседей по убыванию их расстояния до конца маршрута,
-     * чтобы после добавления их в список actual на вершине находилась
-     * ячейка с наименьшим расстоянием до конца маршрута.
-     */
-    sort_waypoints(neighbors, nc);
-
-    for (uint8_t i = 0; i < nc; i++) {
-      List__push_head(actual, neighbors[i]);
+      /* Если все хорошо, добавляем в список для оценки. */
+      List__push_tail(actual, n);
     }
   }
 

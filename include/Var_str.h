@@ -8,7 +8,7 @@
 
 #ifndef LIST_DATA_T
 #define LIST_DATA_T Waypoint
-#define LIST_DATA_DEFAULT (LIST_DATA_T){ -1, -1, 0, 0, 0.0f }
+#define LIST_DATA_DEFAULT (LIST_DATA_T){ -1, -1, 0, 0, 0 }
 #endif  /* LIST_DATA_T */
 
 /* Тип данных, хранящихся в списке. */

@@ -59,8 +59,8 @@ typedef struct waypoint {
    * py = y + dy;
    */
 
-  /* Расстояние от начала маршрута до данной точки. */
-  float h;
+  /* Количество ячеек, пройденных от начала маршрута. */
+  uint32_t h;
 } Waypoint;
 
 
@@ -119,11 +119,6 @@ uint8_t Waypoint__equal(Waypoint w1, Waypoint w2);
  * Возвращает точку маршрута, предшествующую данной.
  */
 Waypoint Waypoint__parent(Waypoint w);
-
-/**
- * Вычисляет расстояние между двумя точками маршрута.
- */
-float Waypoint__distance(Waypoint w1, Waypoint w2);
 
 /**
  * Проверяет, перекрыт ли путь между точкой w и ее родительской точкой
