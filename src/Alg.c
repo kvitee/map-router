@@ -19,7 +19,7 @@ List *trace_route(Waypoint start, Waypoint end, List *visited) {
 
   /* Добавляем конец маршрута и вычисляем предыдущую точку маршрута (p). */
   List__push_head(route, end);
-  Waypoint p = Waypoint__parent(end);
+  Waypoint p = Waypoint__previous(end);
 
   /* Основной цикл, работает, пока есть посещенные ячейки.
    * Выполняем поиск предыдущей точки маршрута в списке посещенных.
@@ -41,7 +41,7 @@ List *trace_route(Waypoint start, Waypoint end, List *visited) {
     if (Waypoint__equal(List__head(route), start)) break;
 
     /* Обновляем искомую точку. */
-    p = Waypoint__parent(List__head(route));
+    p = Waypoint__previous(List__head(route));
   }
 
   return route;

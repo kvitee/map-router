@@ -59,12 +59,12 @@ Waypoint Map__find(const Map *m, Map_symbol_code s) {
   for (uint8_t i = 0; i < m->h; i++) {
     for (uint8_t j = 0; j < m->w; j++) {
       if (Map__get(m, j, i) == s) {
-        return (Waypoint){j, i, 0, 0, 0.0f};
+        return (Waypoint){j, i, 0, 0, 0};
       }
     }
   }
 
-  return (Waypoint){-1, -1, 0, 0, 0.0f};
+  return (Waypoint){-1, -1, 0, 0, 0};
 }
 
 uint8_t Map__cell_blocked(const Map *m, uint8_t x, uint8_t y) {
