@@ -131,7 +131,7 @@ List *find_route(const Map *m) {
 
 int main(int argc, char **argv) {
   char fn[50];
-  FILE *f;
+  FILE *f = NULL;
 
   /* Название файла из командной строки. */
   if (argc > 1) {
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
     printf("Введите название файла с картой: ");
 
     scanf("%s", fn);
-    FILE *f = fopen(fn, "r");
+    f = fopen(fn, "r");
   }
 
   /* Ни одного файла нет - завершаем программу. */
